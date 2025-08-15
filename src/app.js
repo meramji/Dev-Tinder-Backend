@@ -2,28 +2,16 @@ const express = require("express"); //importing express
 
 const app = express(); //the server has been made.
 
-app.use(
-  "/user",
-  (req, res, next) => {
-    console.log("1st response");
-    // res.send("response!!");
-    next();
-  },
-  (req, res, next) => {
-    console.log("2nd response");
-    // res.send("this is 2 response");
-    next();
-  },
-  (req, res, next) => {
-    console.log("3rd response");
-    // res.send("this is 3 response");
-    next();
-  },
-  (req, res, next) => {
-    console.log("4nd response");
-    res.send("this is 4 response");
-  }
-);
+app.use("/user", (req, res, next) => {
+  console.log("1st response");
+  // res.send("response!!");
+  next();
+});
+app.get("/user", (req, res, next) => {
+  console.log("2nd response");
+  res.send("response!!");//if we do not write res.send then it will give error did not get /user .
+  next(); //if we did not write  next and res.send then it will no in infinity loop and do not print.
+});
 
 app.listen(3000, () => {
   console.log("the server is sucessfully listening.");
