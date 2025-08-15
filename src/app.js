@@ -2,15 +2,17 @@ const express = require("express"); //importing express
 
 const app = express(); //the server has been made.
 
-app.use("/user", (req, res, next) => {
-  console.log("1st response");
-  // res.send("response!!");
-  next();
+const {adminauth,userauth} = require("./middlewares/auth.js");
+app.use("/admin", adminauth);
+app.get("/user",userauth, (req, res) => {  //if token in userauth does not match then it will send unauthorized request and if it matches it will send to next(),user send data response
+  res.send("user data send");
 });
-app.get("/user", (req, res, next) => {
-  console.log("2nd response");
-  res.send("response!!");//if we do not write res.send then it will give error did not get /user .
-  next(); //if we did not write  next and res.send then it will no in infinity loop and do not print.
+
+app.get("/admin/getalldata", (req, res) => {
+  res.send("all data sent");
+});
+app.get("/admin/deleteuser", (req, res) => {
+  res.send("Deleted data");
 });
 
 app.listen(3000, () => {
