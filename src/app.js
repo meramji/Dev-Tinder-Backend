@@ -6,22 +6,19 @@ const app = express(); //the server has been made.
 
 const User = require("./models/user.js");
 
+app.use(express.json());
+
 app.post("/signup", async (req, res) => {
   //creating a new instance of the user model.
 
-  const user = new User({
-    firstname: "xcbcecnj",
-    lastname: "ji",
-    password: "xwninwm",
-    emailId: "dpwmdwoknh@gmail.com",
-  });
+  const user = new User(req.body);
   try {
     await user.save();
     res.send("user send susessfully");
   } catch (err) {
     res.status(400).send("Error saving data" + err.message);
   }
-});  //always do error handling while interacting with database.
+}); //always do error handling while interacting with database.
 
 connectdb()
   .then(() => {
