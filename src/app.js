@@ -9,8 +9,7 @@ const User = require("./models/user.js");
 app.use(express.json());
 
 app.post("/signup", async (req, res) => {
-  //creating a new instance of the user model.
-
+  //creating a new instance of the user model
   const user = new User(req.body);
   try {
     await user.save();
@@ -19,6 +18,32 @@ app.post("/signup", async (req, res) => {
     res.status(400).send("Error saving data" + err.message);
   }
 }); //always do error handling while interacting with database.
+
+//get user by email
+app.get("/user", async (req, res) => {
+  const userEmail = req.body.emailId;
+  try {
+    const users = await User.find({ emailId: userEmail });
+    if (users.length === 0) {
+      res.status(400).send("user not find");
+    } else {
+      res.send(users);
+    }
+  } catch (err) {
+    res.status(400).send("something went wrong");
+  }
+});
+
+//feed API  -get/feed-get all the data of users for feed.
+
+app.get("/feed", async (req, res) => {
+  try {
+    const users = await User.find({}); // For all users in database
+    res.send(users);
+  } catch (err) {
+    res.send("something went wrong ");
+  }
+});
 
 connectdb()
   .then(() => {
