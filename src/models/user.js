@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
 const userschema = new mongoose.Schema(
   {
@@ -22,6 +23,11 @@ const userschema = new mongoose.Schema(
       unique: true,
       trim: true,
       lowercase: true,
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error("invalid eamil address");
+        }
+      },
     },
     password: {
       type: String,
@@ -29,6 +35,11 @@ const userschema = new mongoose.Schema(
       minLength: 4,
       trim: true,
       maxLength: 14,
+      validate(value) {
+        if (!validator.isStrongPassword(value)) {
+          throw new Error("Enter a strong password " + value);
+        }
+      },
     },
     age: {
       type: Number,
@@ -49,6 +60,11 @@ const userschema = new mongoose.Schema(
       trim: true,
       default:
         "https://www.mauicardiovascularsymposium.com/wp-content/uploads/2019/08/dummy-profile-pic-300x300.png",
+      validate(value) {
+        if (!validator.isURL(value)) {
+          throw new Error("Invalid photo urlnaddress" + value);
+        }
+      },
     },
     about: {
       type: String,
