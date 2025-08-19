@@ -99,3 +99,7 @@ connectdb()
   .catch((err) => {
     console.error("database cannot  be connected");
   });
+
+
+
+//NEVER TRUST req.body.
