@@ -6,16 +6,34 @@ const app = express(); //the server has been made.
 
 const User = require("./models/user.js");
 
+const { validateSignupData } = require("./utils/validation.js");
+const bcrypt = require("bcrypt");
+
 app.use(express.json());
 
 app.post("/signup", async (req, res) => {
   //creating a new instance of the user model
-  const user = new User(req.body);
+
   try {
+    validateSignupData(req);
+
+    const { firstname, lastname, emailId, password } = req.body;
+
+    //Encrypt the password.
+    const passwordhash = await bcrypt.hash(password, 10);
+    console.log(passwordhash);
+
+    const user = new User({
+      firstname,
+      lastname,
+      emailId,
+      password: passwordhash,
+    });
+
     await user.save();
     res.send("user send susessfully");
   } catch (err) {
-    res.status(400).send("Error saving data" + err.message);
+    res.status(400).send("Error  :" + err.message);
   }
 }); //always do error handling while interacting with database.
 
@@ -99,7 +117,5 @@ connectdb()
   .catch((err) => {
     console.error("database cannot  be connected");
   });
-
-
 
 //NEVER TRUST req.body.
