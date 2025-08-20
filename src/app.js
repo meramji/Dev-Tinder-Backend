@@ -45,7 +45,7 @@ app.post("/login", async (req, res) => {
   const { emailId, password } = req.body;
   try {
     if (!validator.isEmail(emailId)) {
-      throw new Error("Invalid credentials");
+      throw new Error("Invalid credentials"); //never show which information is false to the user .
     }
     const user = await User.findOne({ emailId });
 
