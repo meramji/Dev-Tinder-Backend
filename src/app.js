@@ -6,6 +6,8 @@ const app = express(); //the server has been made.
 
 const User = require("./models/user.js");
 
+const validator =require("validator");
+
 const { validateSignupData } = require("./utils/validation.js");
 const bcrypt = require("bcrypt");
 
@@ -31,11 +33,36 @@ app.post("/signup", async (req, res) => {
     });
 
     await user.save();
-    res.send("user send susessfully");
+    res.send("user send sucessfully");
   } catch (err) {
     res.status(400).send("Error  :" + err.message);
   }
 }); //always do error handling while interacting with database.
+
+//login API for User.
+
+app.post("/login", async (req, res) => {
+  const { emailId, password } = req.body;
+  try {
+    if (!validator.isEmail(emailId)) {
+      throw new Error("Invalid credentials");
+    }
+    const user = await User.findOne({ emailId });
+
+    if (!user) {
+      throw new Error("Invalid credentials");
+    }
+
+    const ispasswordValid = await bcrypt.compare(password, user.password);
+    if (ispasswordValid) {
+      res.send("login sucessfull!!!");
+    } else {
+      throw new Error("Invalid credentials");
+    }
+  } catch(err){
+    res.status(400).send("Error : " + err.message);
+  }
+});
 
 //get user by email
 app.get("/user", async (req, res) => {
@@ -95,7 +122,6 @@ app.patch("/user/:userId", async (req, res) => {
     res.send("Update Failed:" + err.message);
   }
 });
-
 //feed API  -get/feed-get all the data of users for feed.
 
 app.get("/feed", async (req, res) => {
