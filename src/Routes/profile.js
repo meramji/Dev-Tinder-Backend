@@ -2,7 +2,7 @@ const express = require("express");
 const profileRouter = express.Router();
 const { userauth } = require("../middlewares/auth.js");
 
-profileRouter.get("/profile", userauth, async (req, res) => {
+profileRouter.get("/profile/view", userauth, async (req, res) => {
   try {
     user = req.user;
     res.send(user);
@@ -10,5 +10,7 @@ profileRouter.get("/profile", userauth, async (req, res) => {
     res.status(400).send("Error : " + err.message);
   }
 });
+profileRouter.patch("/profile/edit",async (req,res)=>{
 
+});
 module.exports = { profileRouter };
