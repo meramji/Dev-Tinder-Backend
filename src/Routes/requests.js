@@ -4,38 +4,53 @@ const requestRouter = express.Router();
 
 const { userauth } = require("../middlewares/auth.js");
 
-const connectionRequest= require("../models/connectionRequest.js");
+const ConnectionRequest = require("../models/connectionRequest.js");
+
+const User = require("../models/user.js");
+
+const mongoose = require("mongoose");
 
 requestRouter.post(
-  "/request/send/:Status/:toUserId",
+  "/request/send/:status/:toUserId",
   userauth,
   async (req, res) => {
     try {
       const fromUserId = req.user._id;
       const toUserId = req.params.toUserId;
-      const Status = req.params.Status;
+      const status = req.params.status;
 
-      const allowedStatus = ["Interested", "Ignored"];
-      if (!allowedStatus.includes(Status)) {
+      const allowedStatus = ["interested", "ignored"];
+      if (!allowedStatus.includes(status)) {
         return res
           .status(400)
-          .json({ message: "Invalid status type:  " + Status });
+          .json({ message: "Invalid status type:  " + status });
       }
 
-      const existingConnectionRequest=await connectionRequest.findOne({
-        $or:[
-          {fromUserId,toUserId},
-          {fromUserId:toUserId,toUserId:fromUserId},
-        ]
+      if (!mongoose.Types.ObjectId.isValid(toUserId)) {
+        return res.status(400).json({ message: "Invalid user ID!" });
+      }
+
+      const toUser = await User.findById(toUserId);
+      if (!toUser) {
+        return res.status(400).json({ message: "user not found !" });
+      }
+
+      const existingConnectionRequest = await ConnectionRequest.findOne({
+        $or: [
+          { fromUserId, toUserId },
+          { fromUserId: toUserId, toUserId: fromUserId },
+        ],
       });
-      if(existingConnectionRequest){
-        return res.status(400).json({message:"connection request already exists!"});
+      if (existingConnectionRequest) {
+        return res
+          .status(400)
+          .json({ message: "connection request already exists!" });
       }
 
       const connectionRequest = new ConnectionRequest({
         fromUserId,
         toUserId,
-        Status,
+        status,
       });
 
       const data = await connectionRequest.save();
