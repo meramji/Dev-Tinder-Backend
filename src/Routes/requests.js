@@ -56,7 +56,7 @@ requestRouter.post(
       const data = await connectionRequest.save();
 
       res.json({
-        message: "Connection request send sucessfully !!",
+        message:"your profile has been "+status+" by "+req.user.firstname,
         data,
       });
     } catch (err) {
