@@ -56,9 +56,38 @@ requestRouter.post(
       const data = await connectionRequest.save();
 
       res.json({
-        message:"your profile has been "+status+" by "+req.user.firstname,
+        message: "you have " + status + req.user.firstname + "profile",
         data,
       });
+    } catch (err) {
+      res.status(400).send("Error :" + err.message);
+    }
+  }
+);
+
+requestRouter.post(
+  "/request/review/:status/:requestId",
+  userauth,
+  async (req, res) => {
+    try {
+      const loggedInUser = req.user;
+      const { status, requestId } = req.params;
+
+      const allowedStatus = ["accepted", "rejected"];
+      if (!allowedStatus.includes(status)) {
+        return res.status(400).json({ message: "status is not allowed" });
+      }
+
+      const connectionRequest = await ConnectionRequest.findOne({
+        _id: requestId,
+        toUserId: loggedInUser._id,
+        status: "interested",
+      });
+
+      connectionRequest.status = status;
+      const data = await connectionRequest.save();
+
+      res.json({ message: "connection request " + status });
     } catch (err) {
       res.status(400).send("Error :" + err.message);
     }
