@@ -7,6 +7,8 @@ const { userauth } = require("../middlewares/auth.js");
 const ConnectionRequest = require("../models/connectionRequest.js");
 
 const USER_SAFE_DATA = "firstname lastname photourl age gender skills about";
+
+const User = require("../models/user.js");
 //getting all the pending connection requests for the loggedIn User .
 
 userRouter.get("/user/requests/received", userauth, async (req, res) => {
@@ -51,4 +53,29 @@ userRouter.get("/user/connections", userauth, async (req, res) => {
   }
 });
 
+userRouter.get("/feed", userauth, async (req, res) => {
+  try {
+    const loggedInUser = req.user;
+
+    const connectionRequest = await ConnectionRequest.find({
+      $or: [{ fromUserId: loggedInUser._id }, { toUserId: loggedInUser._id }],
+    }).select("fromUserId toUserId");
+
+    const hiddenUserfromfeed = new Set();
+    connectionRequest.forEach((requestDoc) => {
+      hiddenUserfromfeed.add(requestDoc.fromUserId.toString());
+      hiddenUserfromfeed.add(requestDoc.toUserId.toString());
+    });
+
+    const users = await User.find({
+      $and: [
+        { _id: { $nin: Array.from(hiddenUserfromfeed) } },
+        { _id: { $ne: loggedInUser._id } },
+      ],
+    }).select(USER_SAFE_DATA);
+    res.send(users);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
 module.exports = userRouter;
