@@ -56,7 +56,7 @@ requestRouter.post(
       const data = await connectionRequest.save();
 
       res.json({
-        message: "you have " + status + req.user.firstname + "profile",
+        message: "you have " + status + "  the profile",
         data,
       });
     } catch (err) {
@@ -83,6 +83,12 @@ requestRouter.post(
         toUserId: loggedInUser._id,
         status: "interested",
       });
+
+      if (!connectionRequest) {
+        return res
+          .status(404)
+          .json({ message: "connection request not found!" });
+      }
 
       connectionRequest.status = status;
       const data = await connectionRequest.save();
